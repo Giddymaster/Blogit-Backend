@@ -2,10 +2,11 @@ import express from "express";
 import bcrypt from "bcryptjs";
 import cors from "cors";
 import { PrismaClient } from "@prisma/client";
-const client = new PrismaClient();
+import jwt from 'jsonwebtoken';
 import validateLogDetails from "./middleware/validateLogDetails.js";
 
 const app = express();
+const client = new PrismaClient();
 app.use(express.json());
 
 app.use(
@@ -35,36 +36,52 @@ app.post("/register", async (req, res) => {
 });
 
 app.post("/login", validateLogDetails, async (req, res) => {
-  const { username, password } = req.body;
+  const { identifier, password } = req.body;
 
   try {
-    const user = await client.user.findUnique({
-      where: { username },
+    const user = await client.user.findFirst({
+      where: {
+        OR :[
+          { emailAddress: identifier },
+          { username : identifier },
+        ],
+      },
     });
 
     if (!user) {
-      return res.status(401).json({ message: "Invalid username or password" });
+      return res.status(401).json({ message: "Invalid email address or password" });
     }
 
     const passwordMatch = await bcrypt.compare(password, user.password);
     if (!passwordMatch) {
-      return res.status(401).json({ message: "Invalid username or password" });
+      return res.status(401).json({ message: "Invalid email address or password" });
     }
 
-    res.status(200).json({
+    const jwtPayload = {
+      id: user.id,
+      username: user.username,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      emailAddress: user.emailAddress,
+    };
+
+    const token = jwt.sign(jwtPayload, process.env.JWT_SECRET_KEY, { expiresIn: "1d" });
+
+    res.status(200).cookie("blogitAuthToken", token, {
+      // httpOnly: true,
+      // secure: true,
+      // expires: 100000*60*1
+    }).json({
       message: "Login successful",
-      user: {
-        id: user.id,
-        username: user.username,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        emailAddress: user.emailAddress,
-      },
+      token,
+      user: jwtPayload,
     });
   } catch (e) {
+    console.error(e);
     res.status(500).json({ message: "Something went wrong!" });
   }
 });
+
 
 
 const port = process.env.PORT || 4000;
