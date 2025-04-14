@@ -19,7 +19,7 @@ app.use(
   }),
 );
 
-app.post("/register", async (req, res) => {
+app.post("/signup", async (req, res) => {
   const { firstName, lastName, emailAddress, username, password } = req.body;
   const hashedPassword = await bcrypt.hash(password, 12);
   try {
