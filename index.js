@@ -4,6 +4,8 @@ import cors from "cors";
 import { PrismaClient } from "@prisma/client";
 import jwt from 'jsonwebtoken';
 import validateLogDetails from "./middleware/validateLogDetails.js";
+import dotenv from "dotenv";
+dotenv.config();
 
 const app = express();
 const client = new PrismaClient();
@@ -13,6 +15,7 @@ app.use(
   cors({
     origin: "https://blogit-frontend-gilt.vercel.app",
     methods: ["GET", "POST", "PATCH", "DELETE", "PUT"],
+    credentials: true,
   }),
 );
 
@@ -57,6 +60,7 @@ app.post("/login", validateLogDetails, async (req, res) => {
       return res.status(401).json({ message: "Invalid email address or password" });
     }
 
+    
     const jwtPayload = {
       id: user.id,
       firstName: user.firstName,
@@ -68,7 +72,9 @@ app.post("/login", validateLogDetails, async (req, res) => {
     res.status(200).cookie("blogitAuthToken", token, {
       httpOnly: true,
       secure: true,
-      expires: 100000*60*1
+      expires: 100000*60*24,
+      sameSite: "None",
+
     }).json({
       message: "Login successful",
       token,
