@@ -67,13 +67,13 @@ app.post("/login", validateLogDetails, async (req, res) => {
       lastName: user.lastName,
     };
 
-    const token = jwt.sign(jwtPayload, process.env.JWT_SECRET_KEY, { expiresIn: "1d" });
+    const token = jwt.sign(jwtPayload, process.env.JWT_SECRET_KEY, {});
 
     res.status(200).cookie("blogitAuthToken", token, {
-      httpOnly: true,
-      secure: true,
-      expires: 100000*60*24,
-      sameSite: "None",
+      // httpOnly: true,
+      // secure: true,
+      // expires: 100000*60*24,
+      // sameSite: "None",
 
     }).json({
       message: "Login successful",
