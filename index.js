@@ -110,6 +110,19 @@ app.post("/writeblog", async (req, res) => {
   }
 });
 
+app.get("/blogs", async (req, res) => {
+  try {
+    const blogs = await client.post.findMany({
+      orderBy: { createdAt: "desc" },
+    });
+
+    res.status(200).json({message: "Blogs retrieved successfullly",blogs});
+  } catch (error) {
+    res.status(500).json({ message: "Failed to fetch blogs" });
+  }
+});
+
+
 
 const port = process.env.PORT || 4000;
 app.listen(port, () => console.log(`Server listening on ${port}`));
