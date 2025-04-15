@@ -25,5 +25,22 @@ model User {
   isDeleted     Boolean  @default(false) @map("is_deleted")
   isDeactivated Boolean  @default(false) @map("is_deactivated")
 
+  posts          Post[]   @relation("UserPosts")
+
   @@map("users")
+}
+
+model Post {
+  id            Int      @id @default(autoincrement())
+  title         String
+  excerpt       String
+  body          String
+  featuredImage String
+  createdAt     DateTime @default(now())
+  lastUpdated   DateTime @updatedAt
+
+  authorId       String?  @map("author_id")
+  author         User?    @relation("UserPosts", fields: [authorId], references: [id])
+
+  @@map("posts")
 }
