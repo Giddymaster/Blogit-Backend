@@ -25,22 +25,22 @@ model User {
   isDeleted     Boolean  @default(false) @map("is_deleted")
   isDeactivated Boolean  @default(false) @map("is_deactivated")
 
-  posts          Post[]   @relation("UserPosts")
+  blogPosts BlogPost[] @relation("UserPosts")
 
   @@map("users")
 }
 
-model Post {
-  id            Int      @id @default(autoincrement())
-  title         String
-  excerpt       String
-  body          String
-  featuredImage String
-  createdAt     DateTime @default(now())
-  lastUpdated   DateTime @updatedAt
+model BlogPost {
+  id            String   @id @default(uuid())
+  title         String   @map("blog_title")
+  excerpt       String   @map("blog_excerpt")
+  body          String   @map("blog_body")
+  featuredImage String   @map("blog_image")
+  createdAt     DateTime @default(now()) @map("created_at")
+  lastUpdated   DateTime @updatedAt @map("updated_at")
+  isDeleted     Boolean  @default(false) @map("is_deleted")
+  authorId      String?  @map("author_id")
+  author        User?    @relation("UserPosts", fields: [authorId], references: [id])
 
-  authorId       String?  @map("author_id")
-  author         User?    @relation("UserPosts", fields: [authorId], references: [id])
-
-  @@map("posts")
+  @@map("blog_posts")
 }
