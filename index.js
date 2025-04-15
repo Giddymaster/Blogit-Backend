@@ -1,7 +1,7 @@
 import express from "express";
 import bcrypt from "bcryptjs";
 import cors from "cors";
-import { PrismaClient } from "@prisma/client";
+import { Prisma, PrismaClient } from "@prisma/client";
 import jwt from 'jsonwebtoken';
 import validateLogDetails from "./middleware/validateLogDetails.js";
 import dotenv from "dotenv";
@@ -13,7 +13,8 @@ app.use(express.json());
 
 app.use(
   cors({
-    origin: "https://blogit-frontend-gilt.vercel.app",
+    origin: "*",
+    // origin: "https://blogit-frontend-gilt.vercel.app",
     methods: ["GET", "POST", "PATCH", "DELETE", "PUT"],
     credentials: true,
   }),
@@ -88,11 +89,8 @@ app.post("/login", validateLogDetails, async (req, res) => {
 
 app.post("/writeblog", async (req, res) => {
   try {
-    // const authorId = req.user.id;
+    const authorId = req.user.id;
     const { title, excerpt, body, featuredImage } = req.body;
-    if (!title || !excerpt || !body) {
-      return res.status(400).json({ message: "All fields are required" });
-    }
 
     const newBlog = await client.blog.create({
       data: {
@@ -100,25 +98,38 @@ app.post("/writeblog", async (req, res) => {
         excerpt,
         body,
         featuredImage:"",
-        authorId
+        authorId,
       },
     });
 
-    res.status(201).json({ message: "Blog Post created successfully", blogId : newBlog.id});
+    res.status(201).json({ message: "New Blog created successfully"});
   } catch (e) {
     res.status(500).json({ message: "Something went wrong creating blog" });
   }
 });
 
-app.get("/blogs", async (req, res) => {
+app.get("/updateblog", async (req, res) => {
+const {id} = req.params;
+const { title, excerpt, body, featuredImage} = req.body;
+const userId = req.body.authorId;
+
   try {
-    const blogs = await client.post.findMany({
-      orderBy: { createdAt: "desc" },
+    const blog = await client.post.findUnique({WHERE: {id}
     });
 
-    res.status(200).json({message: "Blogs retrieved successfully",blogs});
+    if(!blog) return res.status(404).json({message: "Blog Not Found"});
+
+    if(!blog.authorId !== userId ) return res.status(403).json({message: "User not authorized to edit blog"});
+
+    const updated = await client.blog.update({
+      WHERE: {id},
+      data: {title,excerpt,body, featuredImage},
+    });
+    
+    res.status(200).json({message: "Blog updated successfully"})
+
   } catch (error) {
-    res.status(500).json({ message: "Failed to fetch blogs" });
+    res.status(500).json({ message: "Failed to update blogs" });
   }
 });
 
