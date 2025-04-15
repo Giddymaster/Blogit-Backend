@@ -16,8 +16,7 @@ app.use(express.json());
 
 app.use(
   cors({
-    origin: "*",
-    // origin: "https://blogit-frontend-gilt.vercel.app",
+    origin: "https://blogit-frontend-gilt.vercel.app",
     methods: ["GET", "POST", "PATCH", "DELETE", "PUT"],
     credentials: true,
   }),
