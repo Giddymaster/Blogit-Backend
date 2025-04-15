@@ -115,6 +115,22 @@ app.post("/writeblog", verifyUser, async (req, res) => {
   }
 });
 
+
+app.get("/myblogs", verifyUser, async (req, res) => {
+  const authorId = req.user.id;
+
+  try {
+    const blogs = await client.blogPost.findMany({
+      where: { authorId },
+      orderBy: { createdAt: 'desc' }, 
+    });
+
+    res.status(200).json({ blogs });
+  } catch (error) {
+    res.status(500).json({ message: "Failed to fetch blogs" });
+  }
+});
+
 app.patch("/updateblog/:id", async (req, res) => {
 const {id} = req.params;
 const { title, excerpt, body, featuredImage} = req.body;
@@ -139,6 +155,7 @@ const userId = req.body.authorId;
     res.status(500).json({ message: "Failed to update blogs" });
   }
 });
+
 
 app.put("/updateprofile", verifyUser, async (req, res) => {
   const { firstName, lastName, emailAddress, username, previousPassword, newPassword, confirmNewPassword } = req.body;
