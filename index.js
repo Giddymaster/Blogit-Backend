@@ -116,7 +116,7 @@ app.get("/blogs", async (req, res) => {
       orderBy: { createdAt: "desc" },
     });
 
-    res.status(200).json({message: "Blogs retrieved successfullly",blogs});
+    res.status(200).json({message: "Blogs retrieved successfully",blogs});
   } catch (error) {
     res.status(500).json({ message: "Failed to fetch blogs" });
   }
