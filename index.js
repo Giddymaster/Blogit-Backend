@@ -88,9 +88,9 @@ app.post("/login", validateLogDetails, async (req, res) => {
 
 app.post("/writeblog", async (req, res) => {
   try {
-    const authorId = req.user.id;
+    // const authorId = req.user.id;
     const { title, excerpt, body, featuredImage } = req.body;
-    if (!title || !excerpt || !body || !featuredImage) {
+    if (!title || !excerpt || !body) {
       return res.status(400).json({ message: "All fields are required" });
     }
 
@@ -99,14 +99,13 @@ app.post("/writeblog", async (req, res) => {
         title,
         excerpt,
         body,
-        featuredImage,
+        featuredImage:"",
         authorId
       },
     });
 
-    res.status(201).json({ message: "Post created", postId: newPost.id });
+    res.status(201).json({ message: "Blog Post created successfully", blogId : newBlog.id});
   } catch (e) {
-    console.error("Error creating blog:", e);
     res.status(500).json({ message: "Something went wrong creating blog" });
   }
 });
