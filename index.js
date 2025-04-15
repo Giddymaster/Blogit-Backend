@@ -1,13 +1,16 @@
 import express from "express";
 import bcrypt from "bcryptjs";
 import cors from "cors";
-import { Prisma, PrismaClient } from "@prisma/client";
+import cookieParser from "cookie-parser";
+import {PrismaClient } from "@prisma/client";
 import jwt from 'jsonwebtoken';
 import validateLogDetails from "./middleware/validateLogDetails.js";
+import verifyUser from "./middleware/verifyUser.js";
 import dotenv from "dotenv";
 dotenv.config();
 
 const app = express();
+app.use(cookieParser());
 const client = new PrismaClient();
 app.use(express.json());
 
@@ -87,42 +90,46 @@ app.post("/login", validateLogDetails, async (req, res) => {
   }
 });
 
-app.post("/writeblog", async (req, res) => {
+app.post("/writeblog", verifyUser, async (req, res) => {
   try {
     const authorId = req.user.id;
     const { title, excerpt, body, featuredImage } = req.body;
 
-    const newBlog = await client.blog.create({
+    if(!authorId){
+      return res.status(400).json({message: "Author Id is required"})
+    }
+
+    const newBlog = await client.blogPost.create({
       data: {
         title,
         excerpt,
         body,
-        featuredImage:"",
+        featuredImage,
         authorId,
       },
     });
 
     res.status(201).json({ message: "New Blog created successfully"});
   } catch (e) {
-    res.status(500).json({ message: "Something went wrong creating blog" });
+    res.status(500).json({ message: "Something went wrong creating blog"});
   }
 });
 
-app.get("/updateblog", async (req, res) => {
+app.put("/updateblog/:id", async (req, res) => {
 const {id} = req.params;
 const { title, excerpt, body, featuredImage} = req.body;
 const userId = req.body.authorId;
 
   try {
-    const blog = await client.post.findUnique({WHERE: {id}
+    const blog = await client.post.findUnique({where: {id}
     });
 
     if(!blog) return res.status(404).json({message: "Blog Not Found"});
 
-    if(!blog.authorId !== userId ) return res.status(403).json({message: "User not authorized to edit blog"});
+    if(!blog.authorId !== userId ) return res.status(403).json({message: "User not authorized to edit this blog"});
 
-    const updated = await client.blog.update({
-      WHERE: {id},
+    const updated = await client.blogPost.update({
+      where: {id},
       data: {title,excerpt,body, featuredImage},
     });
     
