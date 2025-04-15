@@ -140,6 +140,53 @@ const userId = req.body.authorId;
   }
 });
 
+app.put("/updateprofile", verifyUser, async (req, res) => {
+  const { firstName, lastName, emailAddress, username, previousPassword, newPassword, confirmNewPassword } = req.body;
+  const userId = req.user.id;
+
+  try {
+    const user = await client.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    if (previousPassword) {
+      const passwordMatch = await bcrypt.compare(previousPassword, user.password);
+      if (!passwordMatch) {
+        return res.status(401).json({ message: "Previous password is incorrect" });
+      }
+
+      if (newPassword !== confirmNewPassword) {
+        return res.status(400).json({ message: "New password do not match" });
+      }
+
+      const hashedPassword = await bcrypt.hash(newPassword, 12);
+
+      await client.user.update({
+        where: { id: userId },
+        data: { password: hashedPassword },
+      });
+    }
+
+    const updatedUser = await client.user.update({
+      where: { id: userId },
+      data: {
+        firstName,
+        lastName,
+        emailAddress: emailAddress,
+        username: username,
+      },
+    });
+
+    res.status(200).json({ message: "Profile updated successfully", user: updatedUser });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ message: "Something went wrong!, Please try again." });
+  }
+});
 
 
 const port = process.env.PORT || 4000;
