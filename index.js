@@ -121,6 +121,7 @@ app.get("/blogs", verifyUser, async (req, res) => {
   try {
     const blogs = await client.blogPost.findMany({
       where: { authorId },
+      include: {author : true},
       orderBy: { createdAt: 'desc' }, 
     });
 
