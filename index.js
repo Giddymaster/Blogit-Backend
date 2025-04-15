@@ -131,10 +131,29 @@ app.get("/myblogs", verifyUser, async (req, res) => {
   }
 });
 
-app.patch("/updateblog/:id", async (req, res) => {
+app.get("/myblogs/:id", verifyUser, async (req, res) => {
+  const {id} = req.params;
+  const userId = req.user.id;
+  
+    try {
+      const blog = await client.blogPost.findUnique({where: {id}
+      });
+  
+      if(!blog) return res.status(404).json({message: "Blog Not Found"});
+  
+      if(blog.authorId !== userId ) return res.status(403).json({message: "User not authorized to edit this blog"});
+
+      res.status(200).json(blog);
+  
+    } catch (error) {
+      res.status(500).json({ message: "Failed to retrieve blog" });
+    }
+});
+
+app.patch("/updateblog/:id", verifyUser, async (req, res) => {
 const {id} = req.params;
 const { title, excerpt, body, featuredImage} = req.body;
-const userId = req.body.authorId;
+const userId = req.user.authorId;
 
   try {
     const blog = await client.blogPost.findUnique({where: {id}
@@ -153,6 +172,34 @@ const userId = req.body.authorId;
 
   } catch (error) {
     res.status(500).json({ message: "Failed to update blogs" });
+  }
+});
+
+app.delete("/myblogs/:id", verifyUser, async (req, res) => {
+  const { id } = req.params;
+  const userId = req.user.id;
+
+  try {
+    const blog = await client.blogPost.findUnique({
+      where: { id },
+    });
+
+    if (!blog) {
+      return res.status(404).json({ message: "Blog not found" });
+    }
+
+    if (blog.authorId !== userId) {
+      return res.status(403).json({ message: "User not authorized to delete this blog" });
+    }
+
+    await client.blogPost.delete({
+      where: { id },
+    });
+
+    res.status(200).json({ message: "Blog deleted successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Failed to delete blog" });
   }
 });
 
