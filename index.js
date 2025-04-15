@@ -115,20 +115,20 @@ app.post("/writeblog", verifyUser, async (req, res) => {
   }
 });
 
-app.put("/updateblog/:id", async (req, res) => {
+app.patch("/updateblog/:id", async (req, res) => {
 const {id} = req.params;
 const { title, excerpt, body, featuredImage} = req.body;
 const userId = req.body.authorId;
 
   try {
-    const blog = await client.post.findUnique({where: {id}
+    const blog = await client.blogPost.findUnique({where: {id}
     });
 
     if(!blog) return res.status(404).json({message: "Blog Not Found"});
 
-    if(!blog.authorId !== userId ) return res.status(403).json({message: "User not authorized to edit this blog"});
+    if(blog.authorId !== userId ) return res.status(403).json({message: "User not authorized to edit this blog"});
 
-    const updated = await client.blogPost.update({
+    const updatedBlog = await client.blogPost.update({
       where: {id},
       data: {title,excerpt,body, featuredImage},
     });
