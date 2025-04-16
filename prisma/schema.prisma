@@ -35,7 +35,7 @@ model BlogPost {
   title         String   @map("blog_title")
   excerpt       String   @map("blog_excerpt")
   body          String   @map("blog_body")
-  featuredImage String   @map("blog_image")
+  featuredImage String?   @map("blog_image")
   createdAt     DateTime @default(now()) @map("created_at")
   lastUpdated   DateTime @updatedAt @map("updated_at")
   isDeleted     Boolean  @default(false) @map("is_deleted")

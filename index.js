@@ -106,7 +106,7 @@ app.post("/blogs/mine", verifyUser, async (req, res) => {
         title,
         excerpt,
         body,
-        featuredImage,
+        featuredImage :  "https://via.placeholder.com/600x400",
         author : {
           connect: {
             id: authorId,
