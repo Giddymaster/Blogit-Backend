@@ -16,7 +16,8 @@ app.use(express.json());
 
 app.use(
   cors({
-    origin: "https://blogit-frontend-gilt.vercel.app",
+    origin: "*",
+    // origin: "https://blogit-frontend-gilt.vercel.app",
     methods: ["GET", "POST", "PATCH", "DELETE", "PUT"],
     credentials: true,
   }),
@@ -153,7 +154,7 @@ app.get("/blogs/:id", verifyUser, async (req, res) => {
 app.patch("/blogs/:id", verifyUser, async (req, res) => {
 const {id} = req.params;
 const { title, excerpt, body, featuredImage} = req.body;
-const userId = req.user.authorId;
+const userId = req.user.id;
 
   try {
     const blog = await client.blogPost.findUnique({where: {id}
