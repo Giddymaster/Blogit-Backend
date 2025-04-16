@@ -107,7 +107,11 @@ app.post("/blogs/mine", verifyUser, async (req, res) => {
         excerpt,
         body,
         featuredImage,
-        authorId,
+        author : {
+          connect: {
+            id: authorId,
+          },
+        }
       },
     });
 
