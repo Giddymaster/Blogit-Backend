@@ -92,7 +92,7 @@ app.post("/login", validateLogDetails, async (req, res) => {
   }
 });
 
-app.post("/blogs/mine",  async (req, res) => {
+app.post("/blogs/mine", verifyUser, async (req, res) => {
   try {
     const authorId = req.user.id;
     const { title, excerpt, body, featuredImage } = req.body;
@@ -117,7 +117,7 @@ app.post("/blogs/mine",  async (req, res) => {
   }
 });
 
-app.get("/blogs", async (req, res) => {
+app.get("/blogs", verifyUser, async (req, res) => {
   const authorId = req.user.id;
 
   try {
@@ -133,7 +133,7 @@ app.get("/blogs", async (req, res) => {
   }
 });
 
-app.get("/blogs/:id", async (req, res) => {
+app.get("/blogs/:id", verifyUser, async (req, res) => {
   const { id } = req.params;
   const userId = req.user.id;
 
@@ -153,7 +153,7 @@ app.get("/blogs/:id", async (req, res) => {
   }
 });
 
-app.patch("/blogs/:id", async (req, res) => {
+app.patch("/blogs/:id", verifyUser, async (req, res) => {
   const { id } = req.params;
   const { title, excerpt, body, featuredImage } = req.body;
   const userId = req.user.id;
@@ -179,7 +179,7 @@ app.patch("/blogs/:id", async (req, res) => {
   }
 });
 
-app.delete("/blogs/:id", async (req, res) => {
+app.delete("/blogs/:id", verifyUser, async (req, res) => {
   const { id } = req.params;
   const userId = req.user.id;
 
