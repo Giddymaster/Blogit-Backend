@@ -121,12 +121,10 @@ app.post("/blogs/mine", verifyUser, async (req, res) => {
   }
 });
 
-app.get("/blogs", verifyUser, async (req, res) => {
-  const authorId = req.user.id;
+app.get("/blogs", async (req, res) => {
 
   try {
     const blogs = await client.blogPost.findMany({
-      where: { authorId },
       include: { author: true },
       orderBy: { createdAt: "desc" },
     });
