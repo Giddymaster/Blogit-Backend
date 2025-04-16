@@ -16,8 +16,8 @@ app.use(express.json());
 
 app.use(
   cors({
-    origin: "*",
-    // origin: "https://blogit-frontend-gilt.vercel.app",
+    // origin: "*",
+    origin: "https://blogit-frontend-gilt.vercel.app",
     methods: ["GET", "POST", "PATCH", "DELETE", "PUT"],
     credentials: true,
   }),
@@ -169,7 +169,7 @@ const userId = req.user.id;
       data: {title,excerpt,body, featuredImage},
     });
     
-    res.status(200).json({message: "Blog updated successfully"})
+    res.status(200).json({message: "Blog updated successfully", blog})
 
   } catch (error) {
     res.status(500).json({ message: "Failed to update blogs" });
