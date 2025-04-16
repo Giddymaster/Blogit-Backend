@@ -1,4 +1,3 @@
-
 import { PrismaClient } from "@prisma/client";
 const client = new PrismaClient();
 
@@ -16,7 +15,7 @@ export const createBlogs = async (req, res) => {
         excerpt,
         body,
         featuredImage,
-        authorId
+        authorId,
       },
     });
 

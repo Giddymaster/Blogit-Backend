@@ -2,8 +2,8 @@ import express from "express";
 import bcrypt from "bcryptjs";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-import {PrismaClient } from "@prisma/client";
-import jwt from 'jsonwebtoken';
+import { PrismaClient } from "@prisma/client";
+import jwt from "jsonwebtoken";
 import validateLogDetails from "./middleware/validateLogDetails.js";
 import verifyUser from "./middleware/verifyUser.js";
 import dotenv from "dotenv";
@@ -48,23 +48,23 @@ app.post("/login", validateLogDetails, async (req, res) => {
   try {
     const user = await client.user.findFirst({
       where: {
-        OR :[
-          { emailAddress: identifier },
-          { username : identifier },
-        ],
+        OR: [{ emailAddress: identifier }, { username: identifier }],
       },
     });
 
     if (!user) {
-      return res.status(401).json({ message: "Invalid email address or password" });
+      return res
+        .status(401)
+        .json({ message: "Invalid email address or password" });
     }
 
     const passwordMatch = await bcrypt.compare(password, user.password);
     if (!passwordMatch) {
-      return res.status(401).json({ message: "Invalid email address or password" });
+      return res
+        .status(401)
+        .json({ message: "Invalid email address or password" });
     }
 
-    
     const jwtPayload = {
       id: user.id,
       firstName: user.firstName,
@@ -73,17 +73,19 @@ app.post("/login", validateLogDetails, async (req, res) => {
 
     const token = jwt.sign(jwtPayload, process.env.JWT_SECRET_KEY, {});
 
-    res.status(200).cookie("blogitAuthToken", token, {
-      // httpOnly: true,
-      // secure: true,
-      // expires: 100000*60*24,
-      // sameSite: "None",
-
-    }).json({
-      message: "Login successful",
-      token,
-      user: jwtPayload,
-    });
+    res
+      .status(200)
+      .cookie("blogitAuthToken", token, {
+        httpOnly: true,
+        secure: true,
+        sameSite: "None",
+        maxAge: 1000 * 60 * 60 * 24,
+      })
+      .json({
+        message: "Login successful",
+        token,
+        user: jwtPayload,
+      });
   } catch (e) {
     console.error(e);
     res.status(500).json({ message: "Something went wrong!" });
@@ -95,8 +97,8 @@ app.post("/blogs/mine", verifyUser, async (req, res) => {
     const authorId = req.user.id;
     const { title, excerpt, body, featuredImage } = req.body;
 
-    if(!authorId){
-      return res.status(400).json({message: "Author Id is required"})
+    if (!authorId) {
+      return res.status(400).json({ message: "Author Id is required" });
     }
 
     const newBlog = await client.blogPost.create({
@@ -109,12 +111,11 @@ app.post("/blogs/mine", verifyUser, async (req, res) => {
       },
     });
 
-    res.status(201).json({ message: "New Blog created successfully"});
+    res.status(201).json({ message: "New Blog created successfully" });
   } catch (e) {
-    res.status(500).json({ message: "Something went wrong creating blog"});
+    res.status(500).json({ message: "Something went wrong creating blog" });
   }
 });
-
 
 app.get("/blogs", verifyUser, async (req, res) => {
   const authorId = req.user.id;
@@ -122,8 +123,8 @@ app.get("/blogs", verifyUser, async (req, res) => {
   try {
     const blogs = await client.blogPost.findMany({
       where: { authorId },
-      include: {author : true},
-      orderBy: { createdAt: 'desc' }, 
+      include: { author: true },
+      orderBy: { createdAt: "desc" },
     });
 
     res.status(200).json({ blogs });
@@ -133,44 +134,46 @@ app.get("/blogs", verifyUser, async (req, res) => {
 });
 
 app.get("/blogs/:id", verifyUser, async (req, res) => {
-  const {id} = req.params;
+  const { id } = req.params;
   const userId = req.user.id;
-  
-    try {
-      const blog = await client.blogPost.findUnique({where: {id}
-      });
-  
-      if(!blog) return res.status(404).json({message: "Blog Not Found"});
-  
-      if(blog.authorId !== userId ) return res.status(403).json({message: "User not authorized to edit this blog"});
 
-      res.status(200).json(blog);
-  
-    } catch (error) {
-      res.status(500).json({ message: "Failed to retrieve blog" });
-    }
+  try {
+    const blog = await client.blogPost.findUnique({ where: { id } });
+
+    if (!blog) return res.status(404).json({ message: "Blog Not Found" });
+
+    if (blog.authorId !== userId)
+      return res
+        .status(403)
+        .json({ message: "User not authorized to edit this blog" });
+
+    res.status(200).json(blog);
+  } catch (error) {
+    res.status(500).json({ message: "Failed to retrieve blog" });
+  }
 });
 
 app.patch("/blogs/:id", verifyUser, async (req, res) => {
-const {id} = req.params;
-const { title, excerpt, body, featuredImage} = req.body;
-const userId = req.user.id;
+  const { id } = req.params;
+  const { title, excerpt, body, featuredImage } = req.body;
+  const userId = req.user.id;
 
   try {
-    const blog = await client.blogPost.findUnique({where: {id}
-    });
+    const blog = await client.blogPost.findUnique({ where: { id } });
 
-    if(!blog) return res.status(404).json({message: "Blog Not Found"});
+    if (!blog) return res.status(404).json({ message: "Blog Not Found" });
 
-    if(blog.authorId !== userId ) return res.status(403).json({message: "User not authorized to edit this blog"});
+    if (blog.authorId !== userId)
+      return res
+        .status(403)
+        .json({ message: "User not authorized to edit this blog" });
 
     const updatedBlog = await client.blogPost.update({
-      where: {id},
-      data: {title,excerpt,body, featuredImage},
+      where: { id },
+      data: { title, excerpt, body, featuredImage },
     });
-    
-    res.status(200).json({message: "Blog updated successfully", blog})
 
+    res.status(200).json({ message: "Blog updated successfully", blog });
   } catch (error) {
     res.status(500).json({ message: "Failed to update blogs" });
   }
@@ -190,7 +193,9 @@ app.delete("/blogs/:id", verifyUser, async (req, res) => {
     }
 
     if (blog.authorId !== userId) {
-      return res.status(403).json({ message: "User not authorized to delete this blog" });
+      return res
+        .status(403)
+        .json({ message: "User not authorized to delete this blog" });
     }
 
     await client.blogPost.delete({
@@ -204,9 +209,16 @@ app.delete("/blogs/:id", verifyUser, async (req, res) => {
   }
 });
 
-
 app.put("/profile", verifyUser, async (req, res) => {
-  const { firstName, lastName, emailAddress, username, previousPassword, newPassword, confirmNewPassword } = req.body;
+  const {
+    firstName,
+    lastName,
+    emailAddress,
+    username,
+    previousPassword,
+    newPassword,
+    confirmNewPassword,
+  } = req.body;
   const userId = req.user.id;
 
   try {
@@ -219,9 +231,14 @@ app.put("/profile", verifyUser, async (req, res) => {
     }
 
     if (previousPassword) {
-      const passwordMatch = await bcrypt.compare(previousPassword, user.password);
+      const passwordMatch = await bcrypt.compare(
+        previousPassword,
+        user.password,
+      );
       if (!passwordMatch) {
-        return res.status(401).json({ message: "Previous password is incorrect" });
+        return res
+          .status(401)
+          .json({ message: "Previous password is incorrect" });
       }
 
       if (newPassword !== confirmNewPassword) {
@@ -246,13 +263,16 @@ app.put("/profile", verifyUser, async (req, res) => {
       },
     });
 
-    res.status(200).json({ message: "Profile updated successfully", user: updatedUser });
+    res
+      .status(200)
+      .json({ message: "Profile updated successfully", user: updatedUser });
   } catch (e) {
     console.error(e);
-    res.status(500).json({ message: "Something went wrong!, Please try again." });
+    res
+      .status(500)
+      .json({ message: "Something went wrong!, Please try again." });
   }
 });
-
 
 const port = process.env.PORT || 4000;
 app.listen(port, () => console.log(`Server listening on ${port}`));
