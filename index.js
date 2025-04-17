@@ -121,7 +121,7 @@ app.post("/blogs/mine", verifyUser, async (req, res) => {
   }
 });
 
-app.get("/blogs/myn", verifyUser, async (req, res) => {
+app.get("/blogs/myn", async (req, res) => {
   try {
     const userId = req.user.id;
 
