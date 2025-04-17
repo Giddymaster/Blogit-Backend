@@ -121,7 +121,7 @@ app.post("/blogs/mine", verifyUser, async (req, res) => {
   }
 });
 
-app.get("/blogs/myn", async (req, res) => {
+app.get("/blogs/myn", verifyUser, async (req, res) => {
   try {
     const userId = req.user.id;
 
@@ -137,7 +137,6 @@ app.get("/blogs/myn", async (req, res) => {
     res.status(500).json({ message: "Failed to fetch my blogs" });
   }
 });
-
 
 app.get("/blogs", async (req, res) => {
 
