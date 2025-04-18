@@ -121,6 +121,23 @@ app.post("/blogs/mine", verifyUser, async (req, res) => {
   }
 });
 
+app.get("/blogs/myn", verifyUser, async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    const blogs = await client.blogPost.findMany({
+      where: { authorId: userId },
+      include: { author: true },
+      orderBy: { createdAt: "desc" },
+    });
+
+    res.status(200).json({ blogs });
+  } catch (error) {
+    console.error("Error fetching my blogs:", error);
+    res.status(500).json({ message: "Failed to fetch my blogs" });
+  }
+});
+
 app.get("/blogs", async (req, res) => {
 
   try {
@@ -129,31 +146,9 @@ app.get("/blogs", async (req, res) => {
       orderBy: { createdAt: "desc" },
     });
 
-    console.log("Fetched blogs:", blogs);
-
     res.status(200).json({ blogs });
   } catch (error) {
     res.status(500).json({ message: "Failed to fetch blogs" });
-  }
-});
-
-app.get("/blogs/myn", verifyUser, async (req, res) => {
-  console.log("Authenticated user:", req.user);
-
-  try {
-    const userId = req.user.id;
-    console.log("Fetching blogs for user ID:", userId);
-
-    const blogs = await client.blogPost.findMany({
-      where: { authorId: userId },
-      include: { author: true },
-      orderBy: { createdAt: "desc" },
-    });
-    console.log("Fetched blogs:", blogs);
-    res.status(200).json({ blogs });
-  } catch (error) {
-    console.error("Error fetching my blogs:", error);
-    res.status(500).json({ message: "Failed to fetch my blogs" });
   }
 });
 
