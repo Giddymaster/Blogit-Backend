@@ -126,13 +126,13 @@ app.get("/blogs/myn", verifyUser, async (req, res) => {
 
   try {
     const userId = req.user.id;
+    console.log("Fetching blogs for user ID:", userId);
 
     const blogs = await client.blogPost.findMany({
       where: { authorId: userId },
       include: { author: true },
       orderBy: { createdAt: "desc" },
     });
-
     console.log("Fetched blogs:", blogs);
     res.status(200).json({ blogs });
   } catch (error) {
