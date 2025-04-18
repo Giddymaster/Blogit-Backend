@@ -1,8 +1,21 @@
-import { Router } from "express";
-import { createBlogs } from "../controllers/blogControllers.js";
+import express from "express";
+import verifyUser from "../middleware/verifyUser.js";
+import {
+  createBlog,
+  getMyBlogs,
+  getAllBlogs,
+  getSingleBlog,
+  updateBlog,
+  deleteBlog
+} from "../controllers/blogController.js";
 
-const router = Router();
+const router = express.Router();
 
-router.route("/").post(createBlogs);
+router.post("/", verifyUser, createBlog);
+router.get("/mine", verifyUser, getMyBlogs);
+router.get("/", getAllBlogs);
+router.get("/:id", verifyUser, getSingleBlog);
+router.patch("/:id", verifyUser, updateBlog);
+router.delete("/:id", verifyUser, deleteBlog);
 
 export default router;
