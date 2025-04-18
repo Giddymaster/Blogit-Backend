@@ -7,7 +7,7 @@ import {
   getSingleBlog,
   updateBlog,
   deleteBlog
-} from "../controllers/blogController.js";
+} from "../controllers/blogControllers.js";
 
 const router = express.Router();
 
