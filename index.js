@@ -122,6 +122,8 @@ app.post("/blogs/mine", verifyUser, async (req, res) => {
 });
 
 app.get("/blogs/myn", verifyUser, async (req, res) => {
+  console.log("Authenticated user:", req.user);
+
   try {
     const userId = req.user.id;
 
@@ -131,6 +133,7 @@ app.get("/blogs/myn", verifyUser, async (req, res) => {
       orderBy: { createdAt: "desc" },
     });
 
+    console.log("Fetched blogs:", blogs);
     res.status(200).json({ blogs });
   } catch (error) {
     console.error("Error fetching my blogs:", error);

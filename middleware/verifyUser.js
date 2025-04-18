@@ -12,6 +12,7 @@ export default function verifyUser(req, res, next) {
       return res.status(401).json({ message: "Not authorized, Login" });
     } else {
       req.user = data;
+      console.log("Token verified, user:", req.user);
       next();
     }
   });
