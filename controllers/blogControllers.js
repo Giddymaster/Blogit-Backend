@@ -43,7 +43,7 @@ export const getAllBlogs = async (req, res) => {
       orderBy: { createdAt: "desc" },
     });
 
-    res.status(200).json(blogs);
+    res.status(200).json({blogs});
   } catch (error) {
     console.error("Get All Blogs Error:", error);
     res.status(500).json({ message: "Something went wrong fetching blogs" });
