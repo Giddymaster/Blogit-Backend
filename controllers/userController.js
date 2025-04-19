@@ -1,3 +1,7 @@
+import { PrismaClient } from '@prisma/client';
+import bcrypt from "bcryptjs";
+const client = new PrismaClient();
+
 export const updateProfile = async (req, res) => {
   const {
     firstName,
