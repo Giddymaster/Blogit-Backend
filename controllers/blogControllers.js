@@ -54,15 +54,25 @@ export const getAllBlogs = async (req, res) => {
 
 export const getMyBlogs = async (req, res) => {
   try {
+    console.log('User ID:', req.user.id); 
     const blogs = await client.blogPost.findMany({
-      where: { authorId: req.user.id },
-      orderBy: { createdAt: "desc" },
+      where: { 
+        authorId: req.user.id,
+        isDeleted: false 
+      },
+      include: {
+        author: {
+          select: {
+            username: true,
+          }
+        }
+      },
+      orderBy: { createdAt: "desc" }
     });
-
-    res.status(200).json(blogs);
+    res.status(200).json({ blogs });
   } catch (error) {
-    console.error("Get My Blogs Error:", error);
-    res.status(500).json({ message: "Something went wrong fetching your blogs" });
+    console.error("Error:", error);
+    res.status(500).json({ message: "Server error" });
   }
 };
 
