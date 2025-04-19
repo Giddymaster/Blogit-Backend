@@ -41,6 +41,7 @@ export const getAllBlogs = async (req, res) => {
         },
       },
       orderBy: { createdAt: "desc" },
+      where: {isDeleted: false},
     });
 
     res.status(200).json({blogs});
